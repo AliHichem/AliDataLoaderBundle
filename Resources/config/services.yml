@@ -4,4 +4,4 @@ parameters:
 services:
     ali__data_loader:
         class: %ali__data_loader.class%
-        arguments: [@.orm.entity_manager]
+        arguments: [@doctrine.orm.entity_manager]
