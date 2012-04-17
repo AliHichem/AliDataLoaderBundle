@@ -1,6 +1,6 @@
 <?php
 
-namespace Ali\DoctrineDataLoaderBundle\Util;
+namespace Ali\DataLoaderBundle\Util;
 
 class Exception extends \Exception
 {

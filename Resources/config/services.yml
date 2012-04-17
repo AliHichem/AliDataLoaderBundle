@@ -1,7 +1,7 @@
 parameters:
-    ali_doctrine_data_loader.class: Ali\DoctrineDataLoaderBundle\Util\Loader
+    ali__data_loader.class: Ali\DataLoaderBundle\Util\Loader
 
 services:
-    ali_doctrine_data_loader:
-        class: %ali_doctrine_data_loader.class%
-        arguments: [@doctrine.orm.entity_manager]
+    ali__data_loader:
+        class: %ali__data_loader.class%
+        arguments: [@.orm.entity_manager]

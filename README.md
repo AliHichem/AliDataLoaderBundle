@@ -1,10 +1,11 @@
-Getting Started With AliDoctrineDataLoaderBundle
+Getting Started With AliDataLoaderBundle
 =======================================
 
-The DoctrineDataLoader bundle for symfony2 allow to load YAML fixtures according to your entities.
+The DoctrineDataLoader bundle for symfony2 allow to load YAML fixtures according to your entities from your ORM/ODM
 This bundle provides a way to load data once and prevent duplication. It mainly includes:
 
- * simple dataloader to load data into your Database inluding relational and NoSQL. 
- * prevent duplication.
- * support of doctrine associations.
+ * Simple dataloader to load data from Doctrine2/Propel ORM or MongoDb/CouchDb ODM. 
+ * Prevent duplication.
+ * Support of associations.
+ * Command line to manage the loader
 

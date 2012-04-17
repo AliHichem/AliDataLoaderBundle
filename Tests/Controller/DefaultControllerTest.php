@@ -1,6 +1,6 @@
 <?php
 
-namespace Ali\DoctrineDataLoaderBundle\Tests\Controller;
+namespace Ali\DataLoaderBundle\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 

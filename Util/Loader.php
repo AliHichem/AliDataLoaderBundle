@@ -1,11 +1,11 @@
 <?php
 
-namespace Ali\DoctrineDataLoaderBundle\Util;
+namespace Ali\DataLoaderBundle\Util;
 
 class Loader
 {
 
-    /** @var Doctrine\ORM\EntityManager */
+    /** @var \ORM\EntityManager */
     private $_em;
     protected $_data_dir;
     protected $_fixtures = array();
@@ -71,7 +71,7 @@ class Loader
      * @param string $index
      * @param array $items
      * 
-     * @return doctrine entity 
+     * @return  entity 
      */
     protected function _persistEntity($model, $index, array $items)
     {
@@ -161,7 +161,7 @@ class Loader
                 {
                     if (count($metadata_target_entity->getIdentifier()) > 1)
                     {
-                        throw new Exception('Doctrine data loader do not support association with mixed identifier');
+                        throw new Exception(' data loader do not support association with mixed identifier');
                     }
                     $identifier_getter = "get".ucfirst(current($metadata_target_entity->getIdentifier()));
                     $value = $this->_persisted[$assoc_metadata["targetEntity"]][$value]->$identifier_getter();
