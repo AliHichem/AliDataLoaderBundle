@@ -2,24 +2,17 @@
 
 namespace Ali\DataLoaderBundle\Util\Provider;
 
-class Doctrine extends Base implements ModelInterface
+class Base
 {
 
-    /** @var \Doctrine\ORM\EntityManager */
     protected $_em;
     protected $_data_dir;
     protected $_fixtures = array();
     protected $_persisted = array();
 
-    public function __construct()
-    {
-        ;
-    }
-
     /**
      * load defaut data (fixtures) into the database
      * 
-     * @throws ExcelException
      * @param string $data_path 
      * 
      * @return void
@@ -133,36 +126,7 @@ class Doctrine extends Base implements ModelInterface
      */
     protected function _assertNotExists($model, array $items)
     {
-        $em = $this->_em;
-        $metadata = $em->getMetadataFactory()->getMetadataFor($model);
-        $dql = "select count(x) from {$model} x where ";
-        $where = array();
-        foreach ($items as $attribute => $value)
-        {
-            if ($metadata->hasAssociation($attribute) == TRUE)
-            {
-                $assoc_metadata = $metadata->getAssociationMapping($attribute);
-                $metadata_target_entity = $em->getMetadataFactory()->getMetadataFor($assoc_metadata["targetEntity"]);
-                if (isset($this->_persisted[$assoc_metadata["targetEntity"]][$value]))
-                {
-                    if (count($metadata_target_entity->getIdentifier()) > 1)
-                    {
-                        throw new Exception(' data loader do not support association with mixed identifier');
-                    }
-                    $identifier_getter = "get" . ucfirst(current($metadata_target_entity->getIdentifier()));
-                    $value = $this->_persisted[$assoc_metadata["targetEntity"]][$value]->$identifier_getter();
-                }
-                else
-                {
-                    return TRUE;
-                }
-            }
-            $where[] = " x.{$attribute} = '{$value}' ";
-        }
-        $dql .= implode(' and ', $where);
-        return $em->createQuery($dql)->getSingleScalarResult() > 0
-                ? FALSE
-                : TRUE;
+        
     }
 
     /**
@@ -220,14 +184,24 @@ class Doctrine extends Base implements ModelInterface
         return FALSE;
     }
 
-    /* add definition to the interface */
-
+    /**
+     * get entity manager
+     * 
+     * @return type 
+     */
     public function getEntityManager()
     {
         return $this->_em;
     }
 
-    public function setEntityManager(\Doctrine\ORM\EntityManager  $_em)
+    /**
+     * set entity manager
+     * 
+     * @param \Doctrine\Common\Persistence\ObjectManager $_em 
+     * 
+     * @return void
+     */
+    public function setEntityManager(\Doctrine\Common\Persistence\ObjectManager $_em)
     {
         $this->_em = $_em;
     }
