@@ -227,7 +227,7 @@ class Doctrine extends Base implements ModelInterface
         return $this->_em;
     }
 
-    public function setEntityManager(\Doctrine\ORM\EntityManager  $_em)
+    public function setEntityManager(\Doctrine\Common\Persistence\ObjectManager  $_em)
     {
         $this->_em = $_em;
     }
