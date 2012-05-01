@@ -54,43 +54,7 @@ class Base
      */
     protected function _persistEntity($model, $index, array $items)
     {
-        $em = $this->_em;
-        $entity = new $model();
-        $metadata = $em->getMetadataFactory()->getMetadataFor($model);
-        foreach ($items as $attribute => $value)
-        {
-            $method = $this->_getMethodFromAttribute($attribute, 'set');
-            if ($metadata->hasAssociation($attribute) == TRUE)
-            {
-                $assoc_metadata = $metadata->getAssociationMapping($attribute);
-                if (isset($this->_fixtures[$assoc_metadata['targetEntity']][$value]))
-                {
-                    $assoc_entity = $this->_persistEntity($assoc_metadata['targetEntity'],
-                                                          $value,
-                                                          $this->_fixtures[$assoc_metadata['targetEntity']][$value]);
-                    $assoc_identifier = $assoc_entity->getId();
-                    $ref = $em->getReference('SupercolegioMainAppBundle:Area',
-                                             (int) $assoc_identifier);
-                    $entity->$method($ref);
-                }
-                else
-                {
-                    throw new Exception("Cannot find data for association [{$attribute}] ");
-                }
-            }
-            else
-            {
-                $entity->$method($value);
-            }
-        }
-        if (!isset($this->_persisted[$model][$index]))
-        {
-            $em->persist($entity);
-            $this->_persisted[$model][$index] = $entity;
-        }
-        $em->flush();
-        $em->detach($entity);
-        return $entity;
+
     }
 
     /**

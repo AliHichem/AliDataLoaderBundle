@@ -36,7 +36,8 @@ class Doctrine extends Base implements ModelInterface
                 {
                     foreach ($values as $index => $items)
                     {
-                        if ($this->_assertNotExists($model, $items))
+                        $entity = $this->_assertNotExists($model, $items);
+                        if (is_null($entity))
                         {
                             $this->_persistEntity($model, $index, $items);
                         }
@@ -72,12 +73,28 @@ class Doctrine extends Base implements ModelInterface
                 $assoc_metadata = $metadata->getAssociationMapping($attribute);
                 if (isset($this->_fixtures[$assoc_metadata['targetEntity']][$value]))
                 {
-                    $assoc_entity = $this->_persistEntity($assoc_metadata['targetEntity'],
+                    if (isset($this->_persisted[$assoc_metadata['targetEntity']][$value]))
+                    {
+                        $assoc_entity = $this->_persisted[$assoc_metadata['targetEntity']][$value];
+                    }
+                    else
+                    {
+                        $_assoc_entity = $this->_assertNotExists(
+                                $assoc_metadata['targetEntity'], 
+                                $this->_fixtures[$assoc_metadata['targetEntity']][$value]);
+                        if (is_null($_assoc_entity))
+                        {
+                            $assoc_entity = $this->_persistEntity($assoc_metadata['targetEntity'],
                                                           $value,
                                                           $this->_fixtures[$assoc_metadata['targetEntity']][$value]);
+                        }
+                        else
+                        {
+                            $assoc_entity = $_assoc_entity;
+                        }
+                    }
                     $assoc_identifier = $assoc_entity->getId();
-                    $ref = $em->getReference('SupercolegioMainAppBundle:Area',
-                                             (int) $assoc_identifier);
+                    $ref = $em->getReference(get_class($assoc_entity),$assoc_identifier);
                     $entity->$method($ref);
                 }
                 else
@@ -125,17 +142,18 @@ class Doctrine extends Base implements ModelInterface
 
     /**
      * check if record already exists in the database
+     * and return found object
      * 
      * @param string $model
      * @param array  $items
      * 
-     * @return boolean
+     * @return object
      */
     protected function _assertNotExists($model, array $items)
     {
         $em = $this->_em;
         $metadata = $em->getMetadataFactory()->getMetadataFor($model);
-        $dql = "select count(x) from {$model} x where ";
+        $dql = "select x from {$model} x where ";
         $where = array();
         foreach ($items as $attribute => $value)
         {
@@ -143,26 +161,25 @@ class Doctrine extends Base implements ModelInterface
             {
                 $assoc_metadata = $metadata->getAssociationMapping($attribute);
                 $metadata_target_entity = $em->getMetadataFactory()->getMetadataFor($assoc_metadata["targetEntity"]);
+                $identifier_getter = "get" . ucfirst(current($metadata_target_entity->getIdentifier()));
                 if (isset($this->_persisted[$assoc_metadata["targetEntity"]][$value]))
                 {
                     if (count($metadata_target_entity->getIdentifier()) > 1)
                     {
                         throw new Exception(' data loader do not support association with mixed identifier');
                     }
-                    $identifier_getter = "get" . ucfirst(current($metadata_target_entity->getIdentifier()));
                     $value = $this->_persisted[$assoc_metadata["targetEntity"]][$value]->$identifier_getter();
                 }
                 else
                 {
-                    return TRUE;
+                    return $this->_assertNotExists($assoc_metadata["targetEntity"], $this->_fixtures[$assoc_metadata['targetEntity']][$value]);
                 }
             }
             $where[] = " x.{$attribute} = '{$value}' ";
         }
         $dql .= implode(' and ', $where);
-        return $em->createQuery($dql)->getSingleScalarResult() > 0
-                ? FALSE
-                : TRUE;
+        
+        return $em->createQuery($dql)->getResult() == array() ? NULL : $em->createQuery($dql)->getSingleResult() ;
     }
 
     /**
