@@ -10,7 +10,7 @@ class Doctrine extends Base implements ModelInterface
     protected $_data_dir;
     protected $_fixtures = array();
     protected $_persisted = array();
-
+    
     public function __construct()
     {
         ;
@@ -151,6 +151,10 @@ class Doctrine extends Base implements ModelInterface
      */
     protected function _assertNotExists($model, array $items)
     {
+        if ($this->_allow_duplication == TRUE)
+        {
+            return NULL;
+        }
         $em = $this->_em;
         $metadata = $em->getMetadataFactory()->getMetadataFor($model);
         $dql = "select x from {$model} x where ";
@@ -178,8 +182,8 @@ class Doctrine extends Base implements ModelInterface
             $where[] = " x.{$attribute} = '{$value}' ";
         }
         $dql .= implode(' and ', $where);
-        
-        return $em->createQuery($dql)->getResult() == array() ? NULL : $em->createQuery($dql)->getSingleResult() ;
+        $data = $em->createQuery($dql)->getResult();
+        return empty($data) ? NULL : $data[0] ;
     }
 
     /**

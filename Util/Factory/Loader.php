@@ -6,7 +6,14 @@ abstract class Loader
 {
 
     protected $_provider;
+    protected $_allow_duplication = FALSE;
 
+    public function duplication($value = TRUE)
+    {
+        $this->_provider->duplication($value);
+        return $this;
+    }
+    
     public function setDriver($driver, $em = NULL)
     {
         $class_name = ucfirst(strtolower($driver));
@@ -22,6 +29,7 @@ abstract class Loader
             $this->_provider = new $class();
             $this->_provider->setEntityManager($em);
         }
+        return $this;
     }
 
     /**
