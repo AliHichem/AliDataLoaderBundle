@@ -99,7 +99,7 @@ class Doctrine extends Base implements ModelInterface
                 }
                 else
                 {
-                    throw new Exception("Cannot find data for association [{$attribute}] ");
+                    throw new \Exception("Cannot find data for association [{$attribute}]: check the appropriate index in your data files. ");
                 }
             }
             else
