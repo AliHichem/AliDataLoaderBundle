@@ -2,21 +2,31 @@
 
 namespace Ali\DataLoaderBundle\Util\Factory;
 
+use Doctrine\Common\Persistence\ObjectManager;
+
 abstract class Loader
 {
 
     protected $_provider;
 
+    /**
+     * set the approriate
+     * 
+     * @param string            $driver
+     * @param ObjectManager     $em 
+     * 
+     * @return void
+     */
     public function setDriver($driver, $em = NULL)
     {
         $class_name = ucfirst(strtolower($driver));
         $class = "\\Ali\\DataLoaderBundle\\Util\\Provider\\{$class_name}";
-        
+
         if (!class_exists($class))
         {
             throw new \Ali\DataLoaderBundle\Util\Exception("Cannot find driver for [{$driver}] - {$class}");
         }
-        
+
         if (in_array($driver, array('doctrine', 'mongodb', 'couchdb')))
         {
             $this->_provider = new $class();

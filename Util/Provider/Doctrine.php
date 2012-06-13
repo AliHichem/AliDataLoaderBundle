@@ -7,14 +7,15 @@ class Doctrine extends Base implements ModelInterface
 
     /** @var \Doctrine\ORM\EntityManager */
     protected $_em;
-    protected $_data_dir;
-    protected $_fixtures = array();
-    protected $_persisted = array();
 
-    public function __construct()
-    {
-        ;
-    }
+    /** @var string */
+    protected $_data_dir;
+
+    /** @var array */
+    protected $_fixtures = array();
+
+    /** @var array */
+    protected $_persisted = array();
 
     /**
      * load defaut data (fixtures) into the database
@@ -80,13 +81,10 @@ class Doctrine extends Base implements ModelInterface
                     else
                     {
                         $_assoc_entity = $this->_assertNotExists(
-                                $assoc_metadata['targetEntity'], 
-                                $this->_fixtures[$assoc_metadata['targetEntity']][$value]);
+                                $assoc_metadata['targetEntity'], $this->_fixtures[$assoc_metadata['targetEntity']][$value]);
                         if (is_null($_assoc_entity))
                         {
-                            $assoc_entity = $this->_persistEntity($assoc_metadata['targetEntity'],
-                                                          $value,
-                                                          $this->_fixtures[$assoc_metadata['targetEntity']][$value]);
+                            $assoc_entity = $this->_persistEntity($assoc_metadata['targetEntity'], $value, $this->_fixtures[$assoc_metadata['targetEntity']][$value]);
                         }
                         else
                         {
@@ -94,7 +92,7 @@ class Doctrine extends Base implements ModelInterface
                         }
                     }
                     $assoc_identifier = $assoc_entity->getId();
-                    $ref = $em->getReference(get_class($assoc_entity),$assoc_identifier);
+                    $ref = $em->getReference(get_class($assoc_entity), $assoc_identifier);
                     $entity->$method($ref);
                 }
                 else
@@ -178,8 +176,8 @@ class Doctrine extends Base implements ModelInterface
             $where[] = " x.{$attribute} = '{$value}' ";
         }
         $dql .= implode(' and ', $where);
-        
-        return $em->createQuery($dql)->getResult() == array() ? NULL : $em->createQuery($dql)->getSingleResult() ;
+
+        return $em->createQuery($dql)->getResult() == array() ? NULL : $em->createQuery($dql)->getSingleResult();
     }
 
     /**
@@ -226,8 +224,7 @@ class Doctrine extends Base implements ModelInterface
             }
             foreach ($array as $array_element)
             {
-                if (( is_array($array_element) || is_object($array_element) ) && $this->_inArray($elem,
-                                                                                                 $array_element))
+                if (( is_array($array_element) || is_object($array_element) ) && $this->_inArray($elem, $array_element))
                 {
                     return TRUE;
                     exit;
@@ -237,14 +234,24 @@ class Doctrine extends Base implements ModelInterface
         return FALSE;
     }
 
-    /* add definition to the interface */
-
+    /**
+     * get doctrine entity manager
+     * 
+     * @return \Doctrine\ORM\EntityManager
+     */
     public function getEntityManager()
     {
         return $this->_em;
     }
 
-    public function setEntityManager(\Doctrine\Common\Persistence\ObjectManager  $_em)
+    /**
+     * set doctrine entity manager
+     * 
+     * @param \Doctrine\Common\Persistence\ObjectManager $_em 
+     * 
+     * @return void
+     */
+    public function setEntityManager(\Doctrine\Common\Persistence\ObjectManager $_em)
     {
         $this->_em = $_em;
     }
