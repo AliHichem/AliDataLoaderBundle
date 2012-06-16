@@ -9,6 +9,7 @@ class Base
     protected $_data_dir;
     protected $_fixtures = array();
     protected $_persisted = array();
+    protected $_allow_duplication = FALSE;
 
     /**
      * load defaut data (fixtures) into the database
@@ -43,6 +44,12 @@ class Base
         }
     }
 
+    public function duplication($value)
+    {
+        $this->_allow_duplication = $value;
+        return $this;
+    }
+    
     /**
      * persist and flush entity
      * 
