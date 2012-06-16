@@ -20,7 +20,6 @@ class Doctrine extends Base implements ModelInterface
     /**
      * load defaut data (fixtures) into the database
      * 
-     * @throws ExcelException
      * @param string $data_path 
      * 
      * @return void
@@ -153,31 +152,42 @@ class Doctrine extends Base implements ModelInterface
         {
             return NULL;
         }
+        $df = $this->_duplication_fields;
         $em = $this->_em;
         $metadata = $em->getMetadataFactory()->getMetadataFor($model);
         $dql = "select x from {$model} x where ";
         $where = array();
-        foreach ($items as $attribute => $value)
+        if (isset ($df[$model]))
         {
-            if ($metadata->hasAssociation($attribute) == TRUE)
+            foreach ($df[$model] as $attr)
             {
-                $assoc_metadata = $metadata->getAssociationMapping($attribute);
-                $metadata_target_entity = $em->getMetadataFactory()->getMetadataFor($assoc_metadata["targetEntity"]);
-                $identifier_getter = "get" . ucfirst(current($metadata_target_entity->getIdentifier()));
-                if (isset($this->_persisted[$assoc_metadata["targetEntity"]][$value]))
-                {
-                    if (count($metadata_target_entity->getIdentifier()) > 1)
-                    {
-                        throw new Exception(' data loader do not support association with mixed identifier');
-                    }
-                    $value = $this->_persisted[$assoc_metadata["targetEntity"]][$value]->$identifier_getter();
-                }
-                else
-                {
-                    return $this->_assertNotExists($assoc_metadata["targetEntity"], $this->_fixtures[$assoc_metadata['targetEntity']][$value]);
-                }
+                $where[] = " x.{$attr} = '{$items[$attr]}' ";
             }
-            $where[] = " x.{$attribute} = '{$value}' ";
+        }
+        else
+        {
+            foreach ($items as $attribute => $value)
+            {
+                if ($metadata->hasAssociation($attribute) == TRUE)
+                {
+                    $assoc_metadata = $metadata->getAssociationMapping($attribute);
+                    $metadata_target_entity = $em->getMetadataFactory()->getMetadataFor($assoc_metadata["targetEntity"]);
+                    $identifier_getter = "get" . ucfirst(current($metadata_target_entity->getIdentifier()));
+                    if (isset($this->_persisted[$assoc_metadata["targetEntity"]][$value]))
+                    {
+                        if (count($metadata_target_entity->getIdentifier()) > 1)
+                        {
+                            throw new Exception(' data loader do not support association with mixed identifier');
+                        }
+                        $value = $this->_persisted[$assoc_metadata["targetEntity"]][$value]->$identifier_getter();
+                    }
+                    else
+                    {
+                        return $this->_assertNotExists($assoc_metadata["targetEntity"], $this->_fixtures[$assoc_metadata['targetEntity']][$value]);
+                    }
+                }
+                $where[] = " x.{$attribute} = '{$value}' ";
+            }
         }
         $dql .= implode(' and ', $where);
         $data = $em->createQuery($dql)->getResult();

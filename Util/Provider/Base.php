@@ -4,12 +4,13 @@ namespace Ali\DataLoaderBundle\Util\Provider;
 
 class Base
 {
-
+    
     protected $_em;
     protected $_data_dir;
     protected $_fixtures = array();
     protected $_persisted = array();
     protected $_allow_duplication = FALSE;
+    protected $_duplication_fields = array();
 
     /**
      * load defaut data (fixtures) into the database
@@ -44,12 +45,21 @@ class Base
         }
     }
 
-    public function duplication($value)
+    /**
+     * enable/disable duplication and set duplication's fields  to check on
+     * 
+     * @param boolean   $value
+     * @param array     $fields
+     * 
+     * @return Loader 
+     */
+    public function duplication($value, $fields)
     {
         $this->_allow_duplication = $value;
+        $this->_duplication_fields = $fields;
         return $this;
     }
-    
+
     /**
      * persist and flush entity
      * 
@@ -61,7 +71,7 @@ class Base
      */
     protected function _persistEntity($model, $index, array $items)
     {
-
+        
     }
 
     /**
@@ -144,8 +154,7 @@ class Base
             }
             foreach ($array as $array_element)
             {
-                if (( is_array($array_element) || is_object($array_element) ) && $this->_inArray($elem,
-                                                                                                 $array_element))
+                if (( is_array($array_element) || is_object($array_element) ) && $this->_inArray($elem, $array_element))
                 {
                     return TRUE;
                     exit;

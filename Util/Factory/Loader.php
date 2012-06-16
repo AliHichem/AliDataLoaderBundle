@@ -10,12 +10,29 @@ abstract class Loader
     protected $_provider;
     protected $_allow_duplication = FALSE;
 
-    public function duplication($value = TRUE)
+    /**
+     * enable/disable duplication and set duplication's fields  to check on
+     * 
+     * @param boolean   $value
+     * @param array     $fields
+     * 
+     * @return Loader 
+     */
+    public function duplication($value = TRUE, $fields = array())
     {
-        $this->_provider->duplication($value);
+        $this->_provider->duplication($value, $fields);
         return $this;
     }
-    
+
+    /**
+     * set the model driver 
+     *  supported driver : doctrine, mongodb
+     * 
+     * @param string            $driver
+     * @param ObjectManager     $em 
+     * 
+     * @return void
+     */
     public function setDriver($driver, $em = NULL)
     {
         $class_name = ucfirst(strtolower($driver));
